@@ -1,0 +1,90 @@
+function generateRandomData() {
+    let data = [];
+    for (let i = 0; i < 10; i++) {
+      let randomNum = Math.floor(Math.random() * (100 - 1) + 1);
+      let randomLetter = String.fromCharCode(Math.floor(Math.random() * (90 - 65) + 65));
+      data.push(randomNum);
+      data.push(randomLetter);
+    }
+    shuffle(data);
+    return data;
+  }
+  
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  function displayData(data) {
+    let container = document.getElementById("container");
+    container.innerHTML = "";
+    for (let i = 0; i < data.length; i++) {
+      let item = document.createElement("div");
+      item.className = "item";
+      item.textContent = data[i];
+      container.appendChild(item);
+    }
+  }
+  function dragAndDrop() {
+    let items = document.querySelectorAll(".item");
+    let currentItem = null;
+  
+    for (let i = 0; i < items.length; i++) {
+      items[i].addEventListener("dragstart", function (e) {
+        currentItem = e.target;
+        setTimeout(function () {
+          e.target.style.display = "none";
+        }, 0);
+      });
+  
+      items[i].addEventListener("dragover", function (e) {
+        e.preventDefault();
+      });
+  
+      items[i].addEventListener("drop", function (e) {
+        e.preventDefault();
+        if (e.target.className == "item") {
+          let parent = e.target.parentNode;
+          parent.insertBefore(currentItem, e.target.nextSibling);
+        }
+      });
+  
+      items[i].addEventListener("dragend", function (e) {
+        e.target.style.display = "flex";
+        currentItem = null;
+      });
+    }
+  }
+  function checkOrder() {
+    let items = document.querySelectorAll(".item");
+    let numbers = [];
+    let letters = [];
+  
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i].textContent;
+      if (!isNaN(item)) {
+        numbers.push(parseInt(item));
+      } else {
+        letters.push(item);
+      }
+    }
+  
+    let isNumOrderCorrect = numbers.every((num, i) => i === 0 || num >= numbers[i - 1]);
+    let isLetterOrderCorrect = letters.every((letter, i) => i === 0 || letter >= letters[i - 1]);
+  
+    return isNumOrderCorrect && isLetterOrderCorrect;
+  }
+  document.getElementById("start").addEventListener("click", function () {
+    let data = generateRandomData();
+    displayData(data);
+    dragAndDrop();
+  });
+  let container = document.getElementById("container");
+
+container.addEventListener("drop", function () {
+  if (checkOrder()) {
+    alert("Congratulations! You have completed the game!");
+  }
+});
